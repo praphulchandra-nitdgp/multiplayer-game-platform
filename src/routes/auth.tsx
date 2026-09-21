@@ -28,6 +28,10 @@ function isEmailNotConfirmed(error: { message: string }): boolean {
   return message.includes("email not confirmed") || message.includes("email is not verified");
 }
 
+function isInvalidCredentials(error: { message: string }): boolean {
+  return error.message.toLowerCase().includes("invalid login credentials");
+}
+
 export const Route = createFileRoute("/auth")({
   ssr: false,
   validateSearch: (search: Record<string, unknown>) => {
@@ -84,6 +88,8 @@ function AuthPage() {
         toast.error(
           "Your email is not confirmed yet. Please check your inbox for the confirmation link.",
         );
+      } else if (isInvalidCredentials(error)) {
+        toast.error("Invalid email or password. New accounts must confirm their email first.");
       } else {
         toast.error(error.message);
       }
@@ -128,25 +134,11 @@ function AuthPage() {
       return;
     }
 
-    // No session returned: try signing in to detect auto-confirm vs. confirmation required.
-    const { error: signInError } = await supabase.auth.signInWithPassword({
-      email: trimmedEmail,
-      password,
-    });
     setBusy(false);
-
-    if (!signInError) {
-      toast.success("Account created and signed in!");
-      goToDestination();
-    } else if (isEmailNotConfirmed(signInError)) {
-      toast.success(
-        "Account created successfully! Please check your email to confirm your account before signing in.",
-        { duration: 7000 },
-      );
-    } else {
-      // Show the real reason instead of claiming success.
-      toast.error(signInError.message);
-    }
+    toast.success(
+      "Account created successfully! Please check your email to confirm your account before signing in.",
+      { duration: 7000 },
+    );
   }
 
   return (

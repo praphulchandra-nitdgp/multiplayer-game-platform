@@ -147,28 +147,43 @@ function Lobby() {
               </div>
               <div className="space-y-2">
                 <Label>Game</Label>
-                <div className="grid gap-2">
-                  {(games.data ?? []).map((game) => (
-                    <button
-                      key={game.slug}
-                      type="button"
-                      onClick={() => setGameSlug(game.slug)}
-                      className={`rounded-md border p-3 text-left transition-colors ${
-                        activeGame === game.slug
-                          ? "border-primary bg-accent"
-                          : "border-border hover:bg-accent"
-                      }`}
-                    >
-                      <span className="block font-semibold">{game.name}</span>
-                      <span className="block text-sm text-muted-foreground">{game.tagline}</span>
-                    </button>
-                  ))}
-                </div>
+                {games.isLoading ? (
+                  <p className="text-sm text-muted-foreground">Loading games…</p>
+                ) : games.isError ? (
+                  <p className="text-sm text-destructive">
+                    Games could not be loaded. Refresh and try again.
+                  </p>
+                ) : games.data?.length ? (
+                  <div className="grid gap-2">
+                    {games.data.map((game) => (
+                      <button
+                        key={game.slug}
+                        type="button"
+                        onClick={() => setGameSlug(game.slug)}
+                        className={`rounded-md border p-3 text-left transition-colors ${
+                          activeGame === game.slug
+                            ? "border-primary bg-accent"
+                            : "border-border hover:bg-accent"
+                        }`}
+                      >
+                        <span className="block font-semibold">{game.name}</span>
+                        <span className="block text-sm text-muted-foreground">{game.tagline}</span>
+                      </button>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-sm text-muted-foreground">
+                    No games are available yet. Run the latest database migration.
+                  </p>
+                )}
               </div>
             </div>
 
             <DialogFooter>
-              <Button onClick={() => create.mutate()} disabled={create.isPending}>
+              <Button
+                onClick={() => create.mutate()}
+                disabled={create.isPending || games.isLoading || !activeGame}
+              >
                 Create and open
               </Button>
             </DialogFooter>

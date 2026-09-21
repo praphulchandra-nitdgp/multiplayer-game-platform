@@ -61,6 +61,7 @@ function AuthPage() {
   const navigate = useNavigate();
 
   const [email, setEmail] = useState("");
+  const [loginUsername, setLoginUsername] = useState("");
   const [password, setPassword] = useState("");
   const [username, setUsername] = useState("");
   const [busy, setBusy] = useState(false);
@@ -77,8 +78,20 @@ function AuthPage() {
   async function handleSignIn(event: React.FormEvent) {
     event.preventDefault();
     setBusy(true);
+
+    const { data: authEmail, error: usernameError } = await supabase.rpc(
+      "get_auth_email_by_username",
+      { lookup_username: loginUsername.trim() },
+    );
+
+    if (usernameError || !authEmail) {
+      setBusy(false);
+      toast.error("Invalid username or password.");
+      return;
+    }
+
     const { error } = await supabase.auth.signInWithPassword({
-      email: email.trim(),
+      email: authEmail,
       password,
     });
     setBusy(false);
@@ -89,7 +102,7 @@ function AuthPage() {
           "Your email is not confirmed yet. Please check your inbox for the confirmation link.",
         );
       } else if (isInvalidCredentials(error)) {
-        toast.error("Invalid email or password. New accounts must confirm their email first.");
+          toast.error("Invalid username or password. New accounts must confirm their email first.");
       } else {
         toast.error(error.message);
       }
@@ -110,6 +123,7 @@ function AuthPage() {
       email: trimmedEmail,
       password,
       options: {
+        emailRedirectTo: `${window.location.origin}/auth`,
         data: { username: trimmedUsername, display_name: trimmedUsername },
       },
     });
@@ -159,14 +173,14 @@ function AuthPage() {
               <TabsContent value="signin">
                 <form onSubmit={handleSignIn} className="space-y-4 pt-4">
                   <div className="space-y-2">
-                    <Label htmlFor="signin-email">Email</Label>
+                    <Label htmlFor="signin-username">Username</Label>
                     <Input
-                      id="signin-email"
-                      type="email"
+                      id="signin-username"
+                      type="text"
                       required
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      autoComplete="email"
+                      value={loginUsername}
+                      onChange={(e) => setLoginUsername(e.target.value)}
+                      autoComplete="username"
                     />
                   </div>
                   <div className="space-y-2">

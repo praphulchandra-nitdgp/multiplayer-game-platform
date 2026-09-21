@@ -296,6 +296,10 @@ export type Database = {
       }
     }
     Functions: {
+      get_auth_email_by_username: {
+        Args: { lookup_username: string }
+        Returns: string | null
+      }
       is_room_member: {
         Args: { _room_id: string; _user_id: string }
         Returns: boolean

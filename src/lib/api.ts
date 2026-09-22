@@ -127,7 +127,11 @@ export async function fetchRoom(roomId: string): Promise<RoomSummary | null> {
   if (!room) return null;
 
   const seats = unwrap<{ room_id: string; user_id: string; seat: number }[]>(
-    await supabase.from("room_players").select("room_id, user_id, seat").eq("room_id", roomId).order("seat"),
+    await supabase
+      .from("room_players")
+      .select("room_id, user_id, seat")
+      .eq("room_id", roomId)
+      .order("seat"),
   );
   const profiles = await fetchProfiles([...seats.map((s) => s.user_id), room.host_id]);
 
@@ -168,7 +172,9 @@ export async function fetchLeaderboard(): Promise<LeaderboardRow[]> {
   const rows = unwrap(
     await supabase
       .from("leaderboard")
-      .select("user_id, username, display_name, avatar_url, games_played, wins, draws, losses, points")
+      .select(
+        "user_id, username, display_name, avatar_url, games_played, wins, draws, losses, points",
+      )
       .order("points", { ascending: false })
       .order("wins", { ascending: false })
       .limit(100),
@@ -194,7 +200,11 @@ export async function createRoom(input: { name: string; gameSlug: string; userId
 
 export async function joinRoom(input: { roomId: string; userId: string }) {
   const seats = unwrap(
-    await supabase.from("room_players").select("user_id, seat").eq("room_id", input.roomId).order("seat"),
+    await supabase
+      .from("room_players")
+      .select("user_id, seat")
+      .eq("room_id", input.roomId)
+      .order("seat"),
   );
   if (seats.some((s) => s.user_id === input.userId)) return;
 
@@ -261,8 +271,20 @@ export async function forfeitMatchInRoom(input: { roomId: string; forfeiterUserI
   if (opponentId) {
     await supabase.from("match_results").upsert(
       [
-        { match_id: activeMatch.id, game_slug: activeMatch.game_slug, user_id: opponentId, outcome: "win", points: 3 },
-        { match_id: activeMatch.id, game_slug: activeMatch.game_slug, user_id: input.forfeiterUserId, outcome: "loss", points: 0 },
+        {
+          match_id: activeMatch.id,
+          game_slug: activeMatch.game_slug,
+          user_id: opponentId,
+          outcome: "win",
+          points: 3,
+        },
+        {
+          match_id: activeMatch.id,
+          game_slug: activeMatch.game_slug,
+          user_id: input.forfeiterUserId,
+          outcome: "loss",
+          points: 0,
+        },
       ],
       { onConflict: "match_id,user_id" },
     );
@@ -289,4 +311,3 @@ export async function sendMessage(input: { roomId: string; userId: string; body:
     .insert({ room_id: input.roomId, user_id: input.userId, body: input.body });
   if (error) throw new Error(error.message);
 }
-

@@ -3,8 +3,16 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
+import { motion, AnimatePresence } from "framer-motion";
 
-import { fetchGames, fetchLatestMatch, fetchRoom, forfeitMatchInRoom, leaveRoom, type Profile } from "@/lib/api";
+import {
+  fetchGames,
+  fetchLatestMatch,
+  fetchRoom,
+  forfeitMatchInRoom,
+  leaveRoom,
+  type Profile,
+} from "@/lib/api";
 import { makeMove, startMatch, startRematch } from "@/lib/match.functions";
 import { getGameBoard } from "@/components/games";
 import { RoomChat } from "@/components/room-chat";
@@ -128,18 +136,28 @@ function RoomPage() {
   });
 
   if (room.isLoading) {
-    return <p className="mx-auto max-w-6xl px-4 py-12 text-eyebrow animate-pulse">Loading room</p>;
+    return (
+      <div className="flex min-h-[50vh] items-center justify-center">
+        <p className="text-eyebrow animate-pulse text-lg">Initializing arena...</p>
+      </div>
+    );
   }
 
   if (!room.data) {
     return (
-      <div className="mx-auto max-w-6xl px-4 py-16">
-        <h1 className="text-2xl font-bold">Room not found</h1>
-        <p className="mt-2 text-sm text-muted-foreground">It may have been closed by the host.</p>
-        <Button className="mt-6" asChild>
+      <motion.div
+        className="mx-auto max-w-6xl px-4 py-16 text-center"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+      >
+        <h1 className="text-4xl font-bold text-destructive">Room closed</h1>
+        <p className="mt-4 text-base text-muted-foreground">
+          It may have been closed by the host or timed out.
+        </p>
+        <Button className="mt-8 rounded-full" asChild>
           <Link to="/lobby">Back to lobby</Link>
         </Button>
-      </div>
+      </motion.div>
     );
   }
 
@@ -175,89 +193,159 @@ function RoomPage() {
     : null;
 
   return (
-    <main className="mx-auto w-full max-w-6xl px-4 py-10">
-      <div className="flex flex-wrap items-end justify-between gap-4">
+    <main className="mx-auto w-full max-w-6xl px-4 py-10 relative">
+      {/* Decorative background glow */}
+      <div className="absolute top-1/2 left-1/4 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-primary/10 rounded-full blur-[100px] pointer-events-none" />
+
+      <motion.div
+        className="flex flex-wrap items-end justify-between gap-4 relative z-10"
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+      >
         <div>
-          <p className="text-eyebrow">{game?.name ?? data.game_slug}</p>
-          <h1 className="mt-2 text-3xl font-bold">{data.name}</h1>
+          <p className="text-eyebrow tracking-[0.3em]">{game?.name ?? data.game_slug}</p>
+          <h1 className="mt-2 text-4xl font-bold">{data.name}</h1>
         </div>
-        <div className="flex flex-wrap items-center gap-2">
-          <Button variant="outline" onClick={() => navigate({ to: "/lobby" })}>
+        <div className="flex flex-wrap items-center gap-3">
+          <Button
+            variant="outline"
+            className="rounded-full hover:bg-white/5"
+            onClick={() => navigate({ to: "/lobby" })}
+          >
             Return to Lobby
           </Button>
           {isMember ? (
-            <Button variant="destructive" onClick={() => leave.mutate()} disabled={leave.isPending}>
+            <Button
+              variant="destructive"
+              className="rounded-full shadow-glow-destructive"
+              onClick={() => leave.mutate()}
+              disabled={leave.isPending}
+            >
               Leave Room (Forfeit)
             </Button>
           ) : null}
         </div>
-      </div>
+      </motion.div>
 
-      <div className="mt-8 grid gap-6 lg:grid-cols-[1fr_22rem]">
-        <section className="panel p-6">
-          <div className="flex flex-wrap items-center gap-3">
+      <div className="mt-8 grid gap-6 lg:grid-cols-[1fr_22rem] relative z-10">
+        <motion.section
+          className="panel p-6 relative overflow-hidden"
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.4 }}
+        >
+          <div className="flex flex-wrap items-center gap-4">
             {Array.from({ length: capacity }).map((_, seat) => {
               const seated = data.players.find((p) => p.seat === seat);
               const isTurn = Boolean(live && seated && live.turn_user_id === seated.user_id);
               const isPresent = seated ? presentUserIds.includes(seated.user_id) : false;
+
               return (
-                <div
+                <motion.div
                   key={seat}
-                  className={`flex items-center gap-2 rounded-md border px-3 py-2 ${
-                    isTurn ? "border-primary bg-accent" : "border-border"
+                  animate={isTurn ? { scale: 1.05 } : { scale: 1 }}
+                  className={`flex items-center gap-3 rounded-xl border px-4 py-3 transition-all duration-300 ${
+                    isTurn
+                      ? "border-primary bg-primary/10 shadow-[0_0_15px_oklch(0.85_0.15_190/0.3)]"
+                      : "border-border/50 bg-background/50"
                   }`}
                 >
-                  <span className="font-mono text-xs text-muted-foreground">
+                  <span
+                    className={`font-mono text-lg font-bold ${seat === 0 ? "text-[var(--mark-x)]" : "text-[var(--mark-o)]"}`}
+                  >
                     {seat === 0 ? "X" : "O"}
                   </span>
-                  <span className="text-sm font-medium">
-                    {seated ? seated.profile?.display_name ?? "Player" : "Open seat"}
-                  </span>
-                  {seated?.user_id === data.host_id ? <Badge variant="secondary">Host</Badge> : null}
-                  {seated ? (
-                    <Badge variant={isPresent ? "outline" : "destructive"}>
-                      {isPresent ? "In room" : "Away"}
-                    </Badge>
-                  ) : null}
-                </div>
+                  <div className="flex flex-col">
+                    <span className="text-sm font-semibold">
+                      {seated ? (seated.profile?.display_name ?? "Player") : "Open seat"}
+                    </span>
+                    <div className="flex gap-2 mt-1">
+                      {seated?.user_id === data.host_id ? (
+                        <Badge variant="secondary" className="text-[10px] h-4 px-1.5 bg-white/10">
+                          Host
+                        </Badge>
+                      ) : null}
+                      {seated ? (
+                        <Badge
+                          variant={isPresent ? "outline" : "destructive"}
+                          className={`text-[10px] h-4 px-1.5 ${isPresent ? "border-primary/50 text-primary" : ""}`}
+                        >
+                          {isPresent ? "In room" : "Away"}
+                        </Badge>
+                      ) : null}
+                    </div>
+                  </div>
+                </motion.div>
               );
             })}
           </div>
 
-          <div className="mt-6 min-h-8">
-            {isOpponentAway ? (
-              <div className="flex flex-wrap items-center justify-between gap-3 rounded-md border border-amber-500/40 bg-amber-500/10 p-3 text-amber-500">
-                <div>
-                  <p className="text-sm font-bold">⏸️ Game Paused</p>
-                  <p className="text-xs opacity-90">
-                    {profiles[opponentId!]?.display_name ?? "Opponent"} left the room temporarily and is in the lobby.
-                  </p>
-                </div>
-                <Button
-                  size="sm"
-                  variant="destructive"
-                  onClick={() => forfeitOpponent.mutate()}
-                  disabled={forfeitOpponent.isPending}
+          <div className="mt-10 min-h-12 flex items-center justify-center text-center">
+            <AnimatePresence mode="wait">
+              {isOpponentAway ? (
+                <motion.div
+                  key="away"
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.9 }}
+                  className="flex flex-wrap items-center justify-between gap-4 rounded-xl border border-amber-500/40 bg-amber-500/10 p-4 w-full"
                 >
-                  Claim Victory (Forfeit Opponent)
-                </Button>
-              </div>
-            ) : live ? (
-              <p className="font-display text-lg font-semibold text-primary">{turnName}</p>
-            ) : finished ? (
-              <p className="font-display text-lg font-semibold">{resultText}</p>
-            ) : (
-              <p className="text-sm text-muted-foreground">
-                {playerIds.length < capacity
-                  ? "Waiting for another player to take the open seat."
-                  : isHost
-                    ? "Both seats filled — start the match."
-                    : "Waiting for the host to start the match."}
-              </p>
-            )}
+                  <div className="text-left text-amber-500">
+                    <p className="text-base font-bold flex items-center gap-2">
+                      <span className="animate-pulse">⚠️</span> Game Paused
+                    </p>
+                    <p className="text-sm opacity-90 mt-1">
+                      {profiles[opponentId!]?.display_name ?? "Opponent"} left the room temporarily.
+                    </p>
+                  </div>
+                  <Button
+                    size="sm"
+                    variant="destructive"
+                    className="rounded-full shadow-glow-destructive"
+                    onClick={() => forfeitOpponent.mutate()}
+                    disabled={forfeitOpponent.isPending}
+                  >
+                    Claim Victory (Forfeit Opponent)
+                  </Button>
+                </motion.div>
+              ) : live ? (
+                <motion.p
+                  key="live"
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  className={`font-display text-2xl font-bold tracking-wide ${live.turn_user_id === userId ? "text-primary drop-shadow-[0_0_8px_oklch(0.85_0.15_190/0.8)]" : "text-muted-foreground"}`}
+                >
+                  {turnName}
+                </motion.p>
+              ) : finished ? (
+                <motion.p
+                  key="finished"
+                  initial={{ opacity: 0, scale: 0.5 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0 }}
+                  className="font-display text-4xl font-bold text-gradient drop-shadow-[0_0_15px_oklch(0.85_0.15_190/0.5)]"
+                >
+                  {resultText}
+                </motion.p>
+              ) : (
+                <motion.p
+                  key="waiting"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  className="text-base text-muted-foreground"
+                >
+                  {playerIds.length < capacity
+                    ? "Waiting for another player to take the open seat."
+                    : isHost
+                      ? "Both seats filled — start the match."
+                      : "Waiting for the host to start the match."}
+                </motion.p>
+              )}
+            </AnimatePresence>
           </div>
 
-          <div className="mt-6">
+          <div className="mt-10">
             {Board ? (
               <Board
                 state={match.data?.state ?? null}
@@ -268,15 +356,17 @@ function RoomPage() {
                 onPlay={(move) => play.mutate(move)}
               />
             ) : (
-              <p className="text-sm text-muted-foreground">
+              <p className="text-sm text-muted-foreground text-center">
                 This game isn't playable in the browser yet.
               </p>
             )}
           </div>
 
-          <div className="mt-7 flex flex-wrap gap-2">
+          <div className="mt-10 flex flex-wrap justify-center gap-4">
             {isHost && !live && !finished ? (
               <Button
+                size="lg"
+                className="rounded-full px-12 glow-ring text-lg font-semibold"
                 onClick={() => start.mutate()}
                 disabled={start.isPending || playerIds.length < capacity}
               >
@@ -284,16 +374,26 @@ function RoomPage() {
               </Button>
             ) : null}
             {isHost && finished ? (
-              <Button onClick={() => rematch.mutate()} disabled={rematch.isPending}>
+              <Button
+                size="lg"
+                className="rounded-full px-12 glow-ring text-lg font-semibold"
+                onClick={() => rematch.mutate()}
+                disabled={rematch.isPending}
+              >
                 Rematch
               </Button>
             ) : null}
           </div>
-        </section>
+        </motion.section>
 
-        <RoomChat roomId={roomId} userId={userId} profiles={profiles} canPost={isMember} />
+        <motion.div
+          initial={{ opacity: 0, x: 20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.4, delay: 0.2 }}
+        >
+          <RoomChat roomId={roomId} userId={userId} profiles={profiles} canPost={isMember} />
+        </motion.div>
       </div>
     </main>
   );
 }
-

@@ -80,13 +80,13 @@ Open your browser and navigate to `http://localhost:3000` (or the port specified
 
 In the project directory, you can run:
 
-| Command | Description |
-| :--- | :--- |
-| `npm run dev` | Starts the development server with Hot Module Replacement (HMR) |
-| `npm run build` | Builds the app for production |
-| `npm run preview` | Locally preview the built production application |
-| `npm run lint` | Runs ESLint to check for code quality and errors |
-| `npm run format` | Formats codebase using Prettier |
+| Command           | Description                                                     |
+| :---------------- | :-------------------------------------------------------------- |
+| `npm run dev`     | Starts the development server with Hot Module Replacement (HMR) |
+| `npm run build`   | Builds the app for production                                   |
+| `npm run preview` | Locally preview the built production application                |
+| `npm run lint`    | Runs ESLint to check for code quality and errors                |
+| `npm run format`  | Formats codebase using Prettier                                 |
 
 ---
 

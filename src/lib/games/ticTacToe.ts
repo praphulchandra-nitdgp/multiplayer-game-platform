@@ -46,7 +46,8 @@ export const ticTacToe: GameModule<TicTacToeState, TicTacToeMove> = {
     board[move.index] = seat as 0 | 1;
 
     const line = TIC_TAC_TOE_LINES.find(
-      (l) => board[l[0]!] !== null && board[l[0]!] === board[l[1]!] && board[l[1]!] === board[l[2]!],
+      (l) =>
+        board[l[0]!] !== null && board[l[0]!] === board[l[1]!] && board[l[1]!] === board[l[2]!],
     );
 
     if (line) {

@@ -33,7 +33,7 @@ function ProfilePage() {
 
   const profile = useQuery({
     queryKey: ["profile", userId],
-    queryFn: async () => (userId ? (await fetchProfiles([userId]))[userId] ?? null : null),
+    queryFn: async () => (userId ? ((await fetchProfiles([userId]))[userId] ?? null) : null),
     enabled: Boolean(userId),
   });
 

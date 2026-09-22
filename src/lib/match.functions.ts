@@ -33,7 +33,10 @@ async function loadRoomAndSeats(
     .order("seat", { ascending: true });
   if (seatError) throw new Error(seatError.message);
 
-  return { room: room as RoomRow, playerIds: (seats ?? []).map((s: { user_id: string }) => s.user_id) };
+  return {
+    room: room as RoomRow,
+    playerIds: (seats ?? []).map((s: { user_id: string }) => s.user_id),
+  };
 }
 
 /** Host starts (or restarts) the match once every seat is filled. */

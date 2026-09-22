@@ -1,20 +1,17 @@
 -- Insert mock users into auth.users
 -- Passwords are set to 'password123'
 INSERT INTO auth.users (
-  id,
-  instance_id,
-  aud,
-  role,
-  email,
-  encrypted_password,
-  email_confirmed_at,
-  raw_user_meta_data,
-  created_at,
-  updated_at
-) VALUES 
-('11111111-1111-1111-1111-111111111111', '00000000-0000-0000-0000-000000000000', 'authenticated', 'authenticated', 'alice@example.com', crypt('password123', gen_salt('bf')), now(), '{"username":"alice", "display_name":"Alice Pro"}', now(), now()),
-('22222222-2222-2222-2222-222222222222', '00000000-0000-0000-0000-000000000000', 'authenticated', 'authenticated', 'bob@example.com', crypt('password123', gen_salt('bf')), now(), '{"username":"bob", "display_name":"Bob Noob"}', now(), now()),
-('33333333-3333-3333-3333-333333333333', '00000000-0000-0000-0000-000000000000', 'authenticated', 'authenticated', 'charlie@example.com', crypt('password123', gen_salt('bf')), now(), '{"username":"charlie", "display_name":"Charlie T"}', now(), now());
+  id, instance_id, aud, role, email, encrypted_password, email_confirmed_at, raw_user_meta_data, created_at, updated_at, confirmation_token, recovery_token, email_change_token_new, email_change_token_current, email_change
+)
+VALUES
+('11111111-1111-1111-1111-111111111111', '00000000-0000-0000-0000-000000000000', 'authenticated', 'authenticated', 'alice@example.com', crypt('password123', gen_salt('bf')), now(), '{"username":"alice", "display_name":"Alice Pro"}', now(), now(), '', '', '', '', ''),
+('22222222-2222-2222-2222-222222222222', '00000000-0000-0000-0000-000000000000', 'authenticated', 'authenticated', 'bob@example.com', crypt('password123', gen_salt('bf')), now(), '{"username":"bob", "display_name":"Bob Noob"}', now(), now(), '', '', '', '', ''),
+('33333333-3333-3333-3333-333333333333', '00000000-0000-0000-0000-000000000000', 'authenticated', 'authenticated', 'charlie@example.com', crypt('password123', gen_salt('bf')), now(), '{"username":"charlie", "display_name":"Charlie T"}', now(), now(), '', '', '', '', '');
+
+INSERT INTO auth.identities (id, user_id, identity_data, provider, provider_id, created_at, updated_at) VALUES
+(gen_random_uuid(), '11111111-1111-1111-1111-111111111111', format('{"sub":"%s","email":"%s"}', '11111111-1111-1111-1111-111111111111', 'alice@example.com')::jsonb, 'email', 'alice@example.com', now(), now()),
+(gen_random_uuid(), '22222222-2222-2222-2222-222222222222', format('{"sub":"%s","email":"%s"}', '22222222-2222-2222-2222-222222222222', 'bob@example.com')::jsonb, 'email', 'bob@example.com', now(), now()),
+(gen_random_uuid(), '33333333-3333-3333-3333-333333333333', format('{"sub":"%s","email":"%s"}', '33333333-3333-3333-3333-333333333333', 'charlie@example.com')::jsonb, 'email', 'charlie@example.com', now(), now());
 
 -- Wait, the `handle_new_user` trigger automatically creates profiles for these users!
 -- Add an active room in the lobby waiting for a player

@@ -100,7 +100,11 @@ function Landing() {
               transition={{ duration: 0.6, delay: 0.2 }}
             >
               {loading ? (
-                <Button size="lg" disabled className="glow-ring rounded-full px-8 opacity-50 bg-primary/20 text-primary-foreground border-transparent">
+                <Button
+                  size="lg"
+                  disabled
+                  className="glow-ring rounded-full px-8 opacity-50 bg-primary/20 text-primary-foreground border-transparent"
+                >
                   Loading...
                 </Button>
               ) : session ? (

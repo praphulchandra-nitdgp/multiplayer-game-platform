@@ -52,7 +52,7 @@ const containerVariants = {
 
 const itemVariants = {
   hidden: { opacity: 0, y: 20 },
-  show: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 300, damping: 24 } },
+  show: { opacity: 1, y: 0, transition: { type: "spring" as const, stiffness: 300, damping: 24 } },
 };
 
 function Lobby() {
@@ -223,7 +223,9 @@ function Lobby() {
 
       {rooms.isLoading ? (
         <div className="flex min-h-[40vh] items-center justify-center">
-          <p className="text-eyebrow animate-pulse text-lg tracking-[0.2em]">Scanning for rooms...</p>
+          <p className="text-eyebrow animate-pulse text-lg tracking-[0.2em]">
+            Scanning for rooms...
+          </p>
         </div>
       ) : (rooms.data ?? []).length === 0 ? (
         <motion.div

@@ -2,6 +2,8 @@ import { createServerFn } from "@tanstack/react-start";
 
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { getGameModule } from "@/lib/games/registry";
+import type { SupabaseClient } from "@supabase/supabase-js";
+import type { Database } from "@/integrations/supabase/types";
 
 const POINTS = { win: 3, draw: 1, loss: 0 } as const;
 
@@ -13,7 +15,7 @@ type RoomRow = {
 };
 
 async function loadRoomAndSeats(
-  supabase: any,
+  supabase: SupabaseClient<Database>,
   roomId: string,
 ): Promise<{ room: RoomRow; playerIds: string[] }> {
   const { data: room, error: roomError } = await supabase

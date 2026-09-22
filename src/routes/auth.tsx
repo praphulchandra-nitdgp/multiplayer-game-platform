@@ -102,7 +102,7 @@ function AuthPage() {
           "Your email is not confirmed yet. Please check your inbox for the confirmation link.",
         );
       } else if (isInvalidCredentials(error)) {
-          toast.error("Invalid username or password. New accounts must confirm their email first.");
+        toast.error("Invalid username or password. New accounts must confirm their email first.");
       } else {
         toast.error(error.message);
       }

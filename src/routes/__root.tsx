@@ -17,17 +17,18 @@ import { supabase } from "@/integrations/supabase/client";
 
 function NotFoundComponent() {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background px-4">
-      <div className="max-w-md text-center">
-        <p className="text-eyebrow">Error 404</p>
-        <h1 className="mt-3 text-5xl font-bold text-foreground">Off the board</h1>
+    <div className="flex min-h-screen items-center justify-center relative overflow-hidden px-4">
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-primary/5 rounded-full blur-[100px] pointer-events-none" />
+      <div className="panel max-w-md text-center p-8 relative z-10">
+        <p className="text-eyebrow tracking-[0.2em] text-destructive">Error 404</p>
+        <h1 className="mt-3 text-5xl font-bold font-display">Off the board</h1>
         <p className="mt-3 text-sm text-muted-foreground">
           That page doesn't exist. Head back to the lobby and pick a room.
         </p>
-        <div className="mt-6">
+        <div className="mt-8">
           <Link
             to="/"
-            className="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90"
+            className="inline-flex items-center justify-center rounded-full bg-primary px-6 py-2.5 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90 glow-ring"
           >
             Go home
           </Link>
@@ -45,27 +46,28 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
   }, [error]);
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background px-4">
-      <div className="max-w-md text-center">
-        <h1 className="text-xl font-semibold tracking-tight text-foreground">
+    <div className="flex min-h-screen items-center justify-center relative overflow-hidden px-4">
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-destructive/10 rounded-full blur-[100px] pointer-events-none" />
+      <div className="panel max-w-md text-center p-8 relative z-10 border-destructive/20">
+        <h1 className="text-3xl font-bold font-display tracking-tight text-destructive">
           This page didn't load
         </h1>
-        <p className="mt-2 text-sm text-muted-foreground">
+        <p className="mt-3 text-sm text-muted-foreground">
           Something went wrong on our end. Try again or head back home.
         </p>
-        <div className="mt-6 flex flex-wrap justify-center gap-2">
+        <div className="mt-8 flex flex-wrap justify-center gap-3">
           <button
             onClick={() => {
               router.invalidate();
               reset();
             }}
-            className="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90"
+            className="inline-flex items-center justify-center rounded-full bg-destructive/20 text-destructive border border-destructive/50 px-6 py-2.5 text-sm font-semibold transition-colors hover:bg-destructive/30"
           >
             Try again
           </button>
           <a
             href="/"
-            className="inline-flex items-center justify-center rounded-md border border-input bg-background px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-accent"
+            className="inline-flex items-center justify-center rounded-full border border-border/50 bg-background/50 px-6 py-2.5 text-sm font-medium transition-colors hover:bg-white/5"
           >
             Go home
           </a>
@@ -83,13 +85,15 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { title: "GameHub — live multiplayer game rooms" },
       {
         name: "description",
-        content: "Create a room, invite a friend and play live head-to-head matches with chat and rankings.",
+        content:
+          "Create a room, invite a friend and play live head-to-head matches with chat and rankings.",
       },
       { name: "author", content: "GameHub" },
       { property: "og:title", content: "GameHub — live multiplayer game rooms" },
       {
         property: "og:description",
-        content: "Create a room, invite a friend and play live head-to-head matches with chat and rankings.",
+        content:
+          "Create a room, invite a friend and play live head-to-head matches with chat and rankings.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -100,7 +104,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
       {
         rel: "stylesheet",
-        href: "https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap",
+        href: "https://fonts.googleapis.com/css2?family=Outfit:wght@500;600;700;800&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap",
       },
       { rel: "icon", href: "/favicon.ico", type: "image/x-icon" },
     ],

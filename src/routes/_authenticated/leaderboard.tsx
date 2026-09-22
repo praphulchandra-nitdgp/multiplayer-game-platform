@@ -25,13 +25,9 @@ function Leaderboard() {
   const queryClient = useQueryClient();
   const rows = useQuery({ queryKey: ["leaderboard"], queryFn: fetchLeaderboard });
 
-  useRealtime(
-    "leaderboard-realtime",
-    [{ table: "profiles" }, { table: "match_results" }],
-    () => {
-      queryClient.invalidateQueries({ queryKey: ["leaderboard"] });
-    },
-  );
+  useRealtime("leaderboard-realtime", [{ table: "profiles" }, { table: "match_results" }], () => {
+    queryClient.invalidateQueries({ queryKey: ["leaderboard"] });
+  });
 
   const ranked = rows.data ?? [];
 
@@ -106,4 +102,3 @@ function Leaderboard() {
     </main>
   );
 }
-

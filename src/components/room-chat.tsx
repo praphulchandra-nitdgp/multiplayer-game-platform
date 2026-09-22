@@ -62,7 +62,7 @@ export function RoomChat({
             return (
               <div key={message.id} className={mine ? "text-right" : ""}>
                 <p className="text-xs text-muted-foreground">
-                  {mine ? "You" : author?.display_name ?? "Player"}
+                  {mine ? "You" : (author?.display_name ?? "Player")}
                 </p>
                 <p
                   className={`mt-1 inline-block max-w-[85%] rounded-md px-3 py-2 text-sm ${
